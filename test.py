@@ -34,10 +34,9 @@ class Aitank(gym.Env):
         self.missile_speed = 2
         self.missile_radius = 5
 
-        # 动作空间：0 - 不动，1 - 向左，2 - 向右
         self.action_space = spaces.Discrete(3)
 
-        # 观察空间：坦克的x位置和所有导弹的x、y位置
+
         self.observation_space = spaces.Box(low=0, high=np.inf, shape=(1 + 2 * 10,), dtype=np.float32)
 
         self.running = True
@@ -58,14 +57,14 @@ class Aitank(gym.Env):
         # 检查碰撞
         for missile in self.missiles:
             if self._check_collision(missile):
-                reward = -100  # 被击中给予大的负奖励
+                reward = -100 
                 done = True
                 break
 
         return self._get_state(), reward, done, {}
 
     def _get_state(self):
-    # 坦克位置（相對位置，讓模型更容易泛化）
+    # 坦克位置
         tank_relative_x = self.moving_tank_x / self.screen_width
 
         # 只考慮最近的7枚導彈
@@ -98,11 +97,11 @@ class Aitank(gym.Env):
                 self.moving_tank_y < missile[1] < self.moving_tank_y + self.tank_height)
 
     def _update_missiles(self):
-        # 移动现有的导弹
+       
         self.missiles = [[x, y + self.missile_speed] for x, y in self.missiles if y < self.screen_height]
 
         # 随机生成新的导弹
-        if random.random() < 0.07:  # 7%的几率生成新导弹
+        if random.random() < 0.07: 
             self.missiles.append([random.randint(0, self.screen_width), 0])
 
     def tank1_moving(self, action):
@@ -127,7 +126,7 @@ class Aitank(gym.Env):
     def render(self):
         self.win.fill((255, 255, 255))
 
-        # 绘制坦克
+        
         pygame.draw.rect(self.win, (0, 255, 0), (self.moving_tank_x, self.moving_tank_y, self.tank_width, self.tank_height))
 
         nearest_missile = self._get_nearest_missile()
@@ -141,7 +140,7 @@ class Aitank(gym.Env):
 
             pygame.draw.circle(self.win, color, (int(missile[0]), int(missile[1])), self.missile_radius)
             
-            # 绘制检测线
+            
             start_pos = (self.moving_tank_x + self.tank_width // 2, self.moving_tank_y)
             end_pos = (int(missile[0]), int(missile[1]))
             pygame.draw.line(self.win, line_color, start_pos, end_pos, 1)
@@ -236,7 +235,7 @@ def train():
             state_dict = pickle.load(f)
             start_episode = state_dict['episode']
             rewards = state_dict['rewards']
-            agent.load('dqn_model.pth')  # 加載模型
+            agent.load('dqn_model.pth')  
             print(f"Resuming training from episode {start_episode + 1}")
     
     for episode in range(start_episode, total_episodes):
